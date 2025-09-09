@@ -1,0 +1,61 @@
+{
+"name": "Magento 2 Codespace",
+"dockerComposeFile": "docker-compose.yml",
+"service": "app",
+"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+
+"features": {
+"ghcr.io/devcontainers/features/node:1": { "version": "20" },
+"ghcr.io/devcontainers/features/git:1": {},
+"ghcr.io/devcontainers/features/github-cli:1": {}
+},
+
+
+"forwardPorts": [8080, 3306, 9200],
+"portsAttributes": {
+"8080": { "label": "Magento (Apache)", "onAutoForward": "openBrowser" },
+"3306": { "label": "MySQL" },
+"9200": { "label": "OpenSearch" }
+},
+
+
+"remoteEnv": {
+"COMPOSER_MEMORY_LIMIT": "-1"
+},
+
+
+"containerEnv": {
+"MAGENTO_ROOT": "/workspaces/${localWorkspaceFolderBasename}",
+"APACHE_DOCUMENT_ROOT": "/workspaces/${localWorkspaceFolderBasename}/pub"
+},
+
+
+"customizations": {
+"vscode": {
+"extensions": [
+"bmewburn.vscode-intelephense-client",
+"xdebug.php-pack",
+"mehedidracula.php-namespace-resolver",
+"dbaeumer.vscode-eslint",
+"esbenp.prettier-vscode"
+],
+"settings": {
+"php.validate.executablePath": "/usr/local/bin/php",
+"editor.formatOnSave": true
+}
+}
+},
+
+
+"onCreateCommand": "bash -lc 'sudo a2enmod rewrite && sudo service apache2 restart || true'",
+
+
+"postCreateCommand": "bash -lc '\n php -v && composer -V && node -v && npm -v &&\n if [ -f composer.json ]; then composer install; fi &&\n if [ -f package-lock.json ]; then npm ci; elif [ -f package.json ]; then npm install; fi &&\n echo \"\nDevcontainer ready.\n- Web: https://$CODESPACE_NAME-8080.app.github.dev/\n- MySQL: mysql -h 127.0.0.1 -P 3306 -u magento -pmagento magento\n- OpenSearch: http(s)://$CODESPACE_NAME-9200.app.github.dev/\"'",
+
+
+"postStartCommand": "bash -lc 'sudo service apache2 start || true'",
+
+
+"updateContentCommand": "bash -lc 'sudo service apache2 restart || true'"
+}
