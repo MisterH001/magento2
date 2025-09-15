@@ -1,61 +1,111 @@
 {
-"name": "Magento 2 Codespace",
-"dockerComposeFile": "docker-compose.yml",
-"service": "app",
-"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
-
-
-"features": {
-"ghcr.io/devcontainers/features/node:1": { "version": "20" },
-"ghcr.io/devcontainers/features/git:1": {},
-"ghcr.io/devcontainers/features/github-cli:1": {}
-},
-
-
-"forwardPorts": [8080, 3306, 9200],
-"portsAttributes": {
-"8080": { "label": "Magento (Apache)", "onAutoForward": "openBrowser" },
-"3306": { "label": "MySQL" },
-"9200": { "label": "OpenSearch" }
-},
-
-
-"remoteEnv": {
-"COMPOSER_MEMORY_LIMIT": "-1"
-},
-
-
-"containerEnv": {
-"MAGENTO_ROOT": "/workspaces/${localWorkspaceFolderBasename}",
-"APACHE_DOCUMENT_ROOT": "/workspaces/${localWorkspaceFolderBasename}/pub"
-},
-
-
-"customizations": {
-"vscode": {
-"extensions": [
-"bmewburn.vscode-intelephense-client",
-"xdebug.php-pack",
-"mehedidracula.php-namespace-resolver",
-"dbaeumer.vscode-eslint",
-"esbenp.prettier-vscode"
-],
-"settings": {
-"php.validate.executablePath": "/usr/local/bin/php",
-"editor.formatOnSave": true
-}
-}
-},
-
-
-"onCreateCommand": "bash -lc 'sudo a2enmod rewrite && sudo service apache2 restart || true'",
-
-
-"postCreateCommand": "bash -lc '\n php -v && composer -V && node -v && npm -v &&\n if [ -f composer.json ]; then composer install; fi &&\n if [ -f package-lock.json ]; then npm ci; elif [ -f package.json ]; then npm install; fi &&\n echo \"\nDevcontainer ready.\n- Web: https://$CODESPACE_NAME-8080.app.github.dev/\n- MySQL: mysql -h 127.0.0.1 -P 3306 -u magento -pmagento magento\n- OpenSearch: http(s)://$CODESPACE_NAME-9200.app.github.dev/\"'",
-
-
-"postStartCommand": "bash -lc 'sudo service apache2 start || true'",
-
-
-"updateContentCommand": "bash -lc 'sudo service apache2 restart || true'"
+  "hostRequirements": {
+    "cpus": 8,
+    "memory": "16gb",
+    "storage": "32gb"
+  },
+  "name": "Magento 2.4",
+  "workspaceFolder": "/var/www/html",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "php",
+  "remoteUser": "nginx",
+  "runServices": [
+    "php",
+    "nginx",
+    "db",
+    "redis",
+    "opensearch",
+    "rabbitmq",
+    "phpmyadmin"
+  ],
+  "forwardPorts": [
+    80,     // nginx
+    3306,   // db
+    5672,   // rabbitmq
+    8025,   // MailHog
+    9000,   // PHP-FPM
+    9001,   // Additional PHP-FPM ports for debugging
+    9002,   // Additional PHP-FPM ports for debugging
+    9003,   // Additional PHP-FPM ports for debugging
+    5601,   // OpenSearch (if needed)
+    8080    // phpMyAdmin
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "xdebug.php-debug",
+        "bmewburn.vscode-intelephense-client",
+        "jerrylopez.magento2-snippets",
+        "benoitalix.hyva-vscode-snippets",
+        "shevaua.phpcs",
+        "GitHub.copilot"
+      ],
+      "settings": {
+        "extensions.autoUpdate": true,
+        "extensions.autoCheckUpdates": true,
+        "php.validate.executablePath": "/usr/local/bin/php",
+        "php.suggest.basic": false,
+        "php.executablePath": "/usr/local/bin/php",
+        "intelephense.files.exclude": [
+          "**/.js",
+          "**/.png",
+          "**/.jpg",
+          "**/.css",
+          "**/.pdf",
+          "**/.txt",
+          "**/.csv",
+          "**/.xml",
+          "**/dev",
+          "**/pub",
+          "**/var",
+          "**/generated",
+          "**/.vscode-remote",
+          "**/node_modules"
+        ],
+        "files.exclude": {
+          "**/dev": true,
+          "**/pub": true,
+          "**/var": true,
+          "**/generated": true,
+          "**/.vscode-remote": true,
+          "**/node_modules": true
+        },
+        "intelephense.diagnostics.undefinedTypes": false,
+        "intelephense.telemetry.enabled": false,
+        "intelephense.files.maxSize": 2000000,
+        "intelephense.maxMemory": 8096,
+        "intelephense.diagnostics.implementationErrors": false,
+        "intelephense.files.associations": ["*.php", "*.phtml"],
+        "search.exclude": {
+          "**/generated": true,
+          "**/dev": true,
+          "**/pub": true,
+          "**/var": true,
+          "**/.vscode-remote": true,
+          "**/node_modules": true
+        },
+        "files.watcherExclude": {
+          "**/generated": true,
+          "**/dev": true,
+          "**/pub": true,
+          "**/var": true,
+          "**/.vscode-remote": true,
+          "**/node_modules": true
+        },
+        "intelephense.rename.exclude": [],
+        "intelephense.references.exclude": [],
+        "phpcs.standard": "PSR2",
+        "phpcs.enable": true,
+        "phpcs.executablePath": "/usr/local/bin/phpcs",
+        "phpcs.autoConfigSearch": true,
+        "phpcs.ignorePatterns": ["vendor/*", "pub/*", "lib/*", "setup/*"],
+        "phpcs.showWarnings": true,
+        "phpcs.showSources": true,
+        "phpcs.lintOnSave": true,
+        "phpcs.lintOnlyOpened": true,
+        "phpcs.lintOnType": false,
+        "phpcs.lintOnOpen": false
+      }
+    }
+  }
 }
